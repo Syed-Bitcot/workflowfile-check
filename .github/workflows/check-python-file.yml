@@ -1,0 +1,45 @@
+name: Check Python File
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-python-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get list of changed files
+        id: changed-files
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          echo "::set-output name=files::$CHANGED_FILES"
+
+      - name: Check for Python files
+        id: check-python
+        run: |
+          FILES="${{ steps.changed-files.outputs.files }}"
+          if [[ "$FILES" == *".py"* ]]; then
+            echo "::set-output name=is_python::true"
+          else
+            echo "::set-output name=is_python::false"
+          fi
+
+      - name: Add GitHub comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const isPython = '${{ steps.check-python.outputs.is_python }}' === 'true';
+            const comment = isPython 
+              ? ':white_check_mark: This is a Python file.' 
+              : ':x: This is not a Python file.';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

@@ -1,0 +1,31 @@
+name: Your Workflow Name
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  your_job_name:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Your First Step
+        run: echo "This is your first step"
+
+      - name: Comment on PR with status
+        if: always()
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+            const message = 'Workflow completed :white_check_mark:';
+            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+
+            await octokit.issues.createComment({
+              owner,
+              repo,
+              issue_number: prNumber,
+              body: message
+            });

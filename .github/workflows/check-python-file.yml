@@ -35,22 +35,25 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
+            const { context, github } = require('@actions/github');
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: ':white_check_mark: This pull request includes Python files in the backend directory.'
-            })
-      
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `@github-actions :x: Python files found in the backend directory.`
+            });
+  
       - name: Comment on pull request (if no Python files)
         if: steps.check-python.outputs.python-files == 'false'
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: ':x: No Python files found in the backend directory.'
-            })
+            github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+            script: |
+                const { context, github } = require('@actions/github');
+                github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.issue.number,
+                    body: `@github-actions :x: No Python files found in the backend directory.`
+                });
+        

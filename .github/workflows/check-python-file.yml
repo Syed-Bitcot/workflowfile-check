@@ -33,7 +33,7 @@ jobs:
         if: steps.check-python.outputs.python-files == 'true'
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -46,7 +46,7 @@ jobs:
         if: steps.check-python.outputs.python-files == 'false'
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,

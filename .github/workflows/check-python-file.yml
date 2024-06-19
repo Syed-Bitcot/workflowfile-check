@@ -1,4 +1,4 @@
-name: Check Backend Files
+name: Check Backend-python Files
 
 on:
   pull_request:
@@ -19,38 +19,44 @@ jobs:
           BACKEND_FILES=$(find . -type f)
           echo "::set-output name=files::$BACKEND_FILES"
 
-      - name: Check for Python files
-        id: check-python
+      - name: Check for non-Python files
+        id: check-non-python
         run: |
           FILES="$GITHUB_WORKSPACE/${{ steps.list-files.outputs.files }}"
-          if [[ $(echo "$FILES" | grep -v '\.py$') ]]; then
-            echo "::set-output name=python-files::true"
+          NON_PYTHON_COUNT=$(echo "$FILES" | grep -v '\.py$' | wc -l)
+          if [ $NON_PYTHON_COUNT -gt 0 ]; then
+            echo "::set-output name=non-python-files::true"
+            echo "::set-output name=non-python-count::$NON_PYTHON_COUNT"
           else
-            echo "::set-output name=python-files::false"
+            echo "::set-output name=non-python-files::false"
           fi
 
       - name: Comment on pull request
-        if: steps.check-python.outputs.python-files == 'true'
+        if: steps.check-non-python.outputs.non-python-files == 'true'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
+            const { context, github } = require('@actions/github');
+            const count = `${{ steps.check-non-python.outputs.non-python-count }}`;
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: ':white_check_mark: This pull request includes Python files in the backend directory.'
-            })
-      
-      - name: Comment on pull request (if no Python files)
-        if: steps.check-python.outputs.python-files == 'false'
+              issue_number: context.issue.number,
+              body: `@${{ github.actor }} :x: Failed! Found ${count} non-Python file(s) in the backend directory.`
+            });
+            core.setFailed(`Found ${count} non-Python file(s) in the backend directory.`);
+
+      - name: Comment on pull request (if all Python files)
+        if: steps.check-non-python.outputs.non-python-files != 'true'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
+            const { context, github } = require('@actions/github');
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: ':x: No Python files found in the backend directory.'
-            })
+              issue_number: context.issue.number,
+              body: `@${{ github.actor }} :white_check_mark: All files in the backend directory are Python files. It's safe to approve the merge.`
+            });

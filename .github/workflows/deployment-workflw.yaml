@@ -24,13 +24,14 @@ jobs:
         cd backend
         python app.py
 
-    - name: Post comment on PR
-      if: ${{ always() }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        npm install -g @octokit/cli
-        octokit issues create-comment \
-          --repo $GITHUB_REPOSITORY \
-          --issue ${{ github.event.pull_request.number }} \
-          --body "Workflow completed successfully! :white_check_mark:"
+    - name: Set outcome
+      id: result
+      run: echo "::set-output name=status::$(cat $GITHUB_WORKSPACE/status.txt)"
+
+    - name: Display status
+      if: steps.result.outputs.status == 'True'
+      run: echo "Condition is True ✅"
+      
+    - name: Display status
+      if: steps.result.outputs.status == 'False'
+      run: echo "Condition is False ❌"

@@ -1,45 +1,56 @@
-name: Check Python File
+name: Check Backend Files
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  check-python-file:
+  check-backend-files:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Get list of changed files
-        id: changed-files  
+      - name: List backend files
+        id: list-files
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
-          echo "::set-output name=files::$CHANGED_FILES"
+          cd backend  # Change directory to your backend folder
+          BACKEND_FILES=$(find . -type f)
+          echo "::set-output name=files::$BACKEND_FILES"
 
       - name: Check for Python files
         id: check-python
         run: |
-          FILES="${{ steps.changed-files.outputs.files }}"
-          if [[ "$FILES" == *".py"* ]]; then
-            echo "::set-output name=is_python::true"
+          FILES="$GITHUB_WORKSPACE/${{ steps.list-files.outputs.files }}"
+          if [[ $(echo "$FILES" | grep -v '\.py$') ]]; then
+            echo "::set-output name=python-files::true"
           else
-            echo "::set-output name=is_python::false"
+            echo "::set-output name=python-files::false"
           fi
 
-      - name: Add GitHub comment
+      - name: Comment on pull request
+        if: steps.check-python.outputs.python-files == 'true'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const isPython = '${{ steps.check-python.outputs.is_python }}' === 'true';
-            const comment = isPython 
-              ? ':white_check_mark: This is a Python file.' 
-              : ':x: This is not a Python file.';
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: comment
-            });
+              body: ':white_check_mark: This pull request includes Python files in the backend directory.'
+            })
+      
+      - name: Comment on pull request (if no Python files)
+        if: steps.check-python.outputs.python-files == 'false'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: ':x: No Python files found in the backend directory.'
+            })

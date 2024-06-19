@@ -35,8 +35,7 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const { github } = require('@actions/github');
-            const context = github.context;
+            const { github, context } = require('@actions/github');
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -50,8 +49,7 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const { github } = require('@actions/github');
-            const context = github.context;
+            const { github, context } = require('@actions/github');
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,

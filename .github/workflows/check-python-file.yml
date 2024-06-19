@@ -29,32 +29,28 @@ jobs:
             echo "::set-output name=python-files::false"
           fi
 
-      - name: Comment on pull request (if Python files found)
+      - name: Comment on pull request
         if: steps.check-python.outputs.python-files == 'true'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const { github } = require('@actions/github');
-            const context = github.context;
             github.rest.issues.createComment({
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `@${{ github.actor }} :white_check_mark: Python files found in the backend directory.`
-            });
-
+              body: ':white_check_mark: This pull request includes Python files in the backend directory.'
+            })
+      
       - name: Comment on pull request (if no Python files)
         if: steps.check-python.outputs.python-files == 'false'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const { github } = require('@actions/github');
-            const context = github.context;
             github.rest.issues.createComment({
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `@${{ github.actor }} :x: No Python files found in the backend directory.`
-            });
+              body: ':x: No Python files found in the backend directory.'
+            })

@@ -1,6 +1,7 @@
 import os
 
 print('-> Python script ran')  # This is just to verify if the script ran or not
+print("Go"
 
 a=False
 # Simulate condition where GITHUB_ENV=true is appended to $GITHUB_ENV

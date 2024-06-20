@@ -1,4 +1,12 @@
-on: [push, workflow_dispatch]
+name: workflow-conditional check
+
+on: 
+  push:
+    branches:
+      - dev
+    paths:
+      - backend/**
+  
 
 jobs:
   test-job:

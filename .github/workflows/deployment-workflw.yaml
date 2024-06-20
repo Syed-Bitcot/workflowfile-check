@@ -29,17 +29,3 @@ jobs:
       - name: Set output to environment variable
         run: echo "NAME=${{ steps.name.outputs.name }}" >> $GITHUB_ENV
 
-      - name: Check output and comment
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const output = process.env.NAME;
-            const comment = output === 'True' ? "It's True" : "It's False";
-            const { context } = github;
-            const issue_number = context.payload.pull_request ? context.payload.pull_request.number : context.issue.number;
-
-            await github.rest.issues.createComment({
-              ...context.repo,
-              issue_number,
-              body: comment
-            });

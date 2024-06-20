@@ -1,1 +1,1 @@
-Claude
+Whisper Openai

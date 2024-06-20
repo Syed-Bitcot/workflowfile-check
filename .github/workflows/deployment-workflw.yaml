@@ -2,15 +2,17 @@ on: [push, workflow_dispatch]
 
 jobs:
   test-job:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v3
+    runs-on: ubuntu-latest
 
-      - run: python "set.py"
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: running python file
+        run: python "set.py"
         shell: bash
         id: name
-        
-      - run: echo "-> ${{ steps.name.outputs.name }}"         # prints the output which was set in set.py
+
+
+      - name: runnning
+        run: echo "-> ${{ steps.name.outputs.name }}"        

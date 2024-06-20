@@ -2,7 +2,7 @@ import os
 
 print('-> Python script ran')  # This is just to verify if the script ran or not
 
-a=True
+a=False
 # Simulate condition where GITHUB_ENV=true is appended to $GITHUB_ENV
 with open(os.getenv('GITHUB_ENV'), 'a') as env_file:
     env_file.write(f'GITHUB_ENV={a}\n')

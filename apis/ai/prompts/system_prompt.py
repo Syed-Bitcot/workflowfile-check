@@ -1,1 +1,1 @@
-Whisper Openai
+NEw bredorkc

@@ -2,10 +2,12 @@ name: workflow-conditional-check
 
 on:
   pull_request:
-    types: [assigned, opened, synchronize, reopened]
-  push:
+    types: [opened, synchronize, reopened]
     branches:
       - dev
+      - main
+    paths:
+      - 'apis/ai/prompts/system_prompt.py'
 
 
 jobs:

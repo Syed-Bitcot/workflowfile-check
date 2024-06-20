@@ -1,6 +1,8 @@
 name: workflow-conditional-check
 
 on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
   push:
     branches:
       - dev
@@ -21,7 +23,7 @@ jobs:
         id: name
 
       - name: Check GITHUB_ENV
-        run: echo "GITHUB_ENV=$GITHUB_ENV"
+        run: echo "GITHUB_ENV=${GITHUB_ENV}"
         shell: bash
 
       - name: Set output to environment variable

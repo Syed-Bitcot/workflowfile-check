@@ -1,31 +1,35 @@
-name: workflow-conditional check
+name: workflow-conditional-check
 
-on: 
+on:
   push:
     branches:
       - dev
     paths:
-      - backend/**
-  
+      - 'backend/**'
 
 jobs:
   test-job:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: running python file
-        run: python "set.py"
+      - name: Run Python script
+        run: python set.py
         shell: bash
         id: name
 
-
-      - name: runnning
-        run: echo "-> ${{ steps.name.outputs.name }}"        
-
+      - name: Check GITHUB_ENV
+        run: echo "GITHUB_ENV=$GITHUB_ENV"
+        shell: bash
 
       - name: Set output to environment variable
+        if: success() && env.GITHUB_ENV == 'true'
         run: echo "NAME=${{ steps.name.outputs.name }}" >> $GITHUB_ENV
+        shell: bash
 
+      - name: Fail workflow if GITHUB_ENV is not true
+        if: success() && env.GITHUB_ENV != 'true'
+        run: exit 1
+        shell: bash

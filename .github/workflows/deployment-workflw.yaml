@@ -16,3 +16,14 @@ jobs:
 
       - name: runnning
         run: echo "-> ${{ steps.name.outputs.name }}"        
+
+
+      - name: Check output
+        run: |
+          if [ "${{ steps.name.outputs.name }}" = "True" ]; then
+            echo "-> It's True"
+          else
+            echo "-> It's False"
+            exit 1
+          fi
+        shell: bash
